@@ -112,22 +112,41 @@ var find_infimum = function(alpha, eps, tau) {
     if (alpha) {
         var P1_0 = 0;
         var P2_0 = 4 / (4 + Math.PI);
-        var diff0, diff1, diff2, pd;
-        /* FIXME: Implement Fedorenko algorithm */
+        var diff0, diff1, diff2, pd, rd, iter = 0;
+        var P1_0_new, P2_0_new, gamma, diff_norm, diff_norm_prev;
         do {
             diff0 = get_boundary_diff(P1_0, P2_0, alpha, tau);
             diff1 = get_boundary_diff(P1_0 + eps, P2_0, alpha, tau);
             diff2 = get_boundary_diff(P1_0, P2_0 + eps, alpha, tau);
-            pd = reverse_matrix([
+            pd = [
               (diff1[0] - diff0[0]) / eps,
               (diff2[0] - diff0[0]) / eps,
               (diff1[1] - diff0[1]) / eps,
               (diff2[1] - diff0[1]) / eps
-            ]);
-            P1_0 -= (pd[0] * diff0[0] + pd[1] * diff0[1]);
-            P2_0 -= (pd[2] * diff0[0] + pd[3] * diff0[1]);
+            ];
+            rd = reverse_matrix(pd);
+            gamma = 1;
+            if (iter) {
+                diff_norm_prev = diff_norm;
+                do {
+                    P1_0_new = P1_0 - gamma * (rd[0] * diff0[0] + rd[1] * diff0[1]);
+                    P2_0_new = P2_0 - gamma * (rd[2] * diff0[0] + rd[3] * diff0[1]);
+                    diff1 = get_boundary_diff(P1_0_new, P2_0_new, alpha, tau);
+                    /* Fedorenko norm */
+                    diff_norm = Math.sqrt(
+                      diff1[0] * diff1[0] / (rd[0] * rd[0] + rd[1] * rd[1]) +
+                      diff1[1] * diff1[1] / (rd[2] * rd[2] + rd[3] * rd[3])
+                    );
+                    gamma /= 2;
+                } while (diff_norm > diff_norm_prev);
+                P1_0 = P1_0_new;
+                P2_0 = P2_0_new;
+            } else {
+                diff_norm = norm(diff0);
+            }
             //console.log("norm of diff0 is " + norm(diff0));
-        } while (norm(diff0) > eps);
+            ++iter;
+        } while (diff_norm > eps);
         console.log('found optimal boundary conditions: ' + P1_0 + ', ' + P2_0);
         return {
             X1: function(t) {
