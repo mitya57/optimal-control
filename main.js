@@ -114,15 +114,16 @@ var find_infimum = function(alpha, eps, tau) {
         var P2_0 = 4 / (4 + Math.PI);
         var diff0, diff1, diff2, pd, rd, iter = 0;
         var P1_0_new, P2_0_new, gamma, diff_norm, diff_norm_prev;
+        var delta = eps;
         do {
             diff0 = get_boundary_diff(P1_0, P2_0, alpha, tau);
-            diff1 = get_boundary_diff(P1_0 + eps, P2_0, alpha, tau);
-            diff2 = get_boundary_diff(P1_0, P2_0 + eps, alpha, tau);
+            diff1 = get_boundary_diff(P1_0 + delta, P2_0, alpha, tau);
+            diff2 = get_boundary_diff(P1_0, P2_0 + delta, alpha, tau);
             pd = [
-              (diff1[0] - diff0[0]) / eps,
-              (diff2[0] - diff0[0]) / eps,
-              (diff1[1] - diff0[1]) / eps,
-              (diff2[1] - diff0[1]) / eps
+              (diff1[0] - diff0[0]) / delta,
+              (diff2[0] - diff0[0]) / delta,
+              (diff1[1] - diff0[1]) / delta,
+              (diff2[1] - diff0[1]) / delta
             ];
             rd = reverse_matrix(pd);
             gamma = 1;
