@@ -51,7 +51,7 @@ var alphas = [0, 0.01, 0.5, 1.5, 10.5];
 var integrate = function(func, a, b, tau) {
     var result = 0;
     for (var t = a; t < b; t += tau) {
-        result += (func(t) + 4 * func(t + tau / 2) + func(t + tau)) * tau / 6;
+        result += (func(t) + func(t + tau)) * tau / 2;
     }
     return result;
 };
@@ -158,8 +158,8 @@ var find_infimum = function(alpha, eps, tau) {
     };
 };
 
-var process = function(x1, x2, u, alpha, eps) {
-    var integral = integrate(square(u), 0, Math.PI / 2, eps);
+var process = function(x1, x2, u, alpha, tau) {
+    var integral = integrate(square(u), 0, Math.PI / 2, tau);
     //console.log("integral = " + integral);
     var terminal = x2(0) * x2(0);
     //console.log("terminal = " + terminal);
@@ -169,7 +169,7 @@ var process = function(x1, x2, u, alpha, eps) {
 var print_result = function(alpha, eps, tau) {
     console.log('***** alpha = ' + alpha + ' *****');
     var funcs = find_infimum(alpha, eps, tau);
-    var result = process(funcs.X1, funcs.X2, funcs.P2, alpha, eps);
+    var result = process(funcs.X1, funcs.X2, funcs.P2, alpha, tau);
     console.log('result = ' + result);
 };
 
