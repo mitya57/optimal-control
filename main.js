@@ -56,12 +56,6 @@ var integrate = function(func, a, b, tau) {
     return result;
 };
 
-var differentiate = function(func, eps) {
-    return function(t) {
-        return (func(t + eps) - func(t - eps)) / (2 * eps);
-    };
-};
-
 var square = function(func) {
     return function(t) {
         return func(t) * func(t);
