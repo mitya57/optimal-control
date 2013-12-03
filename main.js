@@ -71,24 +71,33 @@ var norm = function(v) {
     return Math.sqrt(v[0] * v[0] + v[1] * v[1]);
 };
 
-var get_values = function(P1_0, P2_0, alpha, tau, point) {
+var get_values = function(P1_0, P2_0, alpha, tau, point, cache) {
     var state = {
         X1: 0,
         X2: P2_0,
         P1: P1_0,
         P2: P2_0
     };
+    var states = [];
     for (var t = 0; t < point; t += tau) {
         state.X1 += runge_kutta_diff(state, t, derivatives.X1, alpha, tau);
         state.X2 += runge_kutta_diff(state, t, derivatives.X2, alpha, tau);
         state.P1 += runge_kutta_diff(state, t, derivatives.P1, alpha, tau);
         state.P2 += runge_kutta_diff(state, t, derivatives.P2, alpha, tau);
+        if (cache) {
+            states.push({
+              X1: state.X1,
+              X2: state.X2,
+              P1: state.P1,
+              P2: state.P2
+            });
+        }
     }
-    return state;
+    return cache ? states : state;
 };
 
 var get_boundary_diff = function(P1_0, P2_0, alpha, tau) {
-    var values = get_values(P1_0, P2_0, alpha, tau, Math.PI / 2);
+    var values = get_values(P1_0, P2_0, alpha, tau, Math.PI / 2, false);
     return [values.X1 - 1, values.P2];
 };
 
@@ -100,6 +109,12 @@ var reverse_matrix = function(matrix) {
        matrix[1] / det,
       -matrix[3] / det
     ];
+};
+
+var function_from_cache = function(cache, fname, tau) {
+    return function(t) {
+        return cache[Math.floor(t/tau)][fname];
+    }
 };
 
 var find_infimum = function(alpha, eps, tau) {
@@ -145,16 +160,11 @@ var find_infimum = function(alpha, eps, tau) {
         ++iter;
     } while (diff_norm > eps);
     console.log('found optimal boundary conditions: ' + P1_0 + ', ' + P2_0);
+    var cache = get_values(P1_0, P2_0, alpha, tau, Math.PI / 2, true);
     return {
-        X1: function(t) {
-            return get_values(P1_0, P2_0, alpha, tau, t).X1;
-        },
-        X2: function(t) {
-            return get_values(P1_0, P2_0, alpha, tau, t).X2;
-        },
-        P2: function(t) {
-            return get_values(P1_0, P2_0, alpha, tau, t).P2;
-        }
+        X1: function_from_cache(cache, 'X1', tau),
+        X2: function_from_cache(cache, 'X2', tau),
+        P2: function_from_cache(cache, 'P2', tau)
     };
 };
 
