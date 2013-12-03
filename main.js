@@ -109,60 +109,59 @@ var reverse_matrix = function(matrix) {
 };
 
 var find_infimum = function(alpha, eps, tau) {
-    if (alpha) {
-        var P1_0 = 0;
-        var P2_0 = 4 / (4 + Math.PI);
-        var diff0, diff1, diff2, pd, rd, iter = 0;
-        var P1_0_new, P2_0_new, gamma, diff_norm, diff_norm_prev;
-        var delta = eps;
-        do {
-            diff0 = get_boundary_diff(P1_0, P2_0, alpha, tau);
-            diff1 = get_boundary_diff(P1_0 + delta, P2_0, alpha, tau);
-            diff2 = get_boundary_diff(P1_0, P2_0 + delta, alpha, tau);
-            pd = [
-              (diff1[0] - diff0[0]) / delta,
-              (diff2[0] - diff0[0]) / delta,
-              (diff1[1] - diff0[1]) / delta,
-              (diff2[1] - diff0[1]) / delta
-            ];
-            rd = reverse_matrix(pd);
-            gamma = 1;
-            if (iter) {
-                diff_norm_prev = diff_norm;
-                do {
-                    P1_0_new = P1_0 - gamma * (rd[0] * diff0[0] + rd[1] * diff0[1]);
-                    P2_0_new = P2_0 - gamma * (rd[2] * diff0[0] + rd[3] * diff0[1]);
-                    diff1 = get_boundary_diff(P1_0_new, P2_0_new, alpha, tau);
-                    /* Fedorenko norm */
-                    diff_norm = Math.sqrt(
-                      diff1[0] * diff1[0] / (rd[0] * rd[0] + rd[1] * rd[1]) +
-                      diff1[1] * diff1[1] / (rd[2] * rd[2] + rd[3] * rd[3])
-                    );
-                    gamma /= 2;
-                } while (diff_norm > diff_norm_prev);
-                P1_0 = P1_0_new;
-                P2_0 = P2_0_new;
-            } else {
-                diff_norm = norm(diff0);
-            }
-            //console.log("norm of diff0 is " + norm(diff0));
-            ++iter;
-        } while (diff_norm > eps);
-        console.log('found optimal boundary conditions: ' + P1_0 + ', ' + P2_0);
-        return {
-            X1: function(t) {
-                return get_values(P1_0, P2_0, alpha, tau, t).X1;
-            },
-            X2: function(t) {
-                return get_values(P1_0, P2_0, alpha, tau, t).X2;
-            },
-            P2: function(t) {
-                return get_values(P1_0, P2_0, alpha, tau, t).P2;
-            }
-       };
-    } else {
+    if (!alpha) {
         return defaults;
     }
+    var P1_0 = 0;
+    var P2_0 = 4 / (4 + Math.PI);
+    var diff0, diff1, diff2, pd, rd, iter = 0;
+    var P1_0_new, P2_0_new, gamma, diff_norm, diff_norm_prev;
+    var delta = eps;
+    do {
+        diff0 = get_boundary_diff(P1_0, P2_0, alpha, tau);
+        diff1 = get_boundary_diff(P1_0 + delta, P2_0, alpha, tau);
+        diff2 = get_boundary_diff(P1_0, P2_0 + delta, alpha, tau);
+        pd = [
+          (diff1[0] - diff0[0]) / delta,
+          (diff2[0] - diff0[0]) / delta,
+          (diff1[1] - diff0[1]) / delta,
+          (diff2[1] - diff0[1]) / delta
+        ];
+        rd = reverse_matrix(pd);
+        gamma = 1;
+        if (iter) {
+            diff_norm_prev = diff_norm;
+            do {
+                P1_0_new = P1_0 - gamma * (rd[0] * diff0[0] + rd[1] * diff0[1]);
+                P2_0_new = P2_0 - gamma * (rd[2] * diff0[0] + rd[3] * diff0[1]);
+                diff1 = get_boundary_diff(P1_0_new, P2_0_new, alpha, tau);
+                /* Fedorenko norm */
+                diff_norm = Math.sqrt(
+                  diff1[0] * diff1[0] / (rd[0] * rd[0] + rd[1] * rd[1]) +
+                  diff1[1] * diff1[1] / (rd[2] * rd[2] + rd[3] * rd[3])
+                );
+                gamma /= 2;
+            } while (diff_norm > diff_norm_prev);
+            P1_0 = P1_0_new;
+            P2_0 = P2_0_new;
+        } else {
+            diff_norm = norm(diff0);
+        }
+        //console.log("norm of diff0 is " + norm(diff0));
+        ++iter;
+    } while (diff_norm > eps);
+    console.log('found optimal boundary conditions: ' + P1_0 + ', ' + P2_0);
+    return {
+        X1: function(t) {
+            return get_values(P1_0, P2_0, alpha, tau, t).X1;
+        },
+        X2: function(t) {
+            return get_values(P1_0, P2_0, alpha, tau, t).X2;
+        },
+        P2: function(t) {
+            return get_values(P1_0, P2_0, alpha, tau, t).P2;
+        }
+    };
 };
 
 var process = function(x1, x2, u, alpha, eps) {
