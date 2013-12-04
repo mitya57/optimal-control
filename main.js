@@ -8,8 +8,8 @@
 //  your needs.
 //
 
-var EPS = 1e-7;
-var TAU = 1e-4;
+var EPS = 1e-12;
+var TAU = 2e-5;
 
 var defaults = {
     X1: function(t) {
