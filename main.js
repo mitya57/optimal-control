@@ -104,16 +104,16 @@ var get_boundary_diff = function(P1_0, P2_0, alpha, tau) {
 var reverse_matrix = function(matrix) {
     var det = matrix[0] * matrix[3] - matrix[1] * matrix[2];
     return [
-      -matrix[0] / det,
-       matrix[2] / det,
-       matrix[1] / det,
-      -matrix[3] / det
+       matrix[3] / det,
+      -matrix[1] / det,
+      -matrix[2] / det,
+       matrix[0] / det
     ];
 };
 
 var function_from_cache = function(cache, fname, tau) {
     return function(t) {
-        return cache[Math.floor(t/tau)][fname];
+        return cache[Math.floor(t / tau)][fname];
     }
 };
 
