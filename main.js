@@ -146,8 +146,8 @@ var find_infimum = function(alpha, eps, tau) {
                 diff1 = get_boundary_diff(P1_0_new, P2_0_new, alpha, tau);
                 /* Fedorenko norm */
                 diff_norm = Math.sqrt(
-                  diff1[0] * diff1[0] / (rd[0] * rd[0] + rd[1] * rd[1]) +
-                  diff1[1] * diff1[1] / (rd[2] * rd[2] + rd[3] * rd[3])
+                  diff1[0] * diff1[0] / (pd[0] * pd[0] + pd[1] * pd[1]) +
+                  diff1[1] * diff1[1] / (pd[2] * pd[2] + pd[3] * pd[3])
                 );
                 gamma /= 2;
             } while (diff_norm > diff_norm_prev);
