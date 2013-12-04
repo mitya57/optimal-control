@@ -9,7 +9,7 @@
 //
 
 var EPS = 1e-12;
-var TAU = 2e-5;
+var TAU = 2e-4;
 
 var defaults = {
     X1: function(t) {
@@ -62,9 +62,22 @@ var square = function(func) {
     };
 };
 
-var runge_kutta_diff = function(state, t, der, alpha, tau) {
-    /* FIXME: actually implement Runge-Kutta here */
-    return der(state, t, alpha) * tau;
+var runge_kutta_diff = function(fname, state, t, alpha, tau) {
+    var der = derivatives[fname], cres = der(state, t, alpha) * tau;
+    var yc = state[fname];
+    var f = function(lt, y) {
+        var lstate = state;
+        lstate[fname] = y;
+        return der(lstate, lt, alpha);
+    };
+    var k1 = tau * f(t, yc);
+    var k2 = tau * f(t + tau / 4, yc + k1 / 4);
+    var k3 = tau * f(t + 3 * tau / 8, yc + 3 / 32 * k1 + 9 / 32 * k2);
+    var k4 = tau * f(t + 12 / 13 * tau, yc + 1932 / 2197 * k1 - 7200 / 2197 * k2 + 7296 / 2197 * k3);
+    var k5 = tau * f(t + tau, yc + 439 / 216 * k1 - 8 * k2 + 3680 / 513 * k3 - 845 / 4104 * k4);
+    var k6 = tau * f(t + tau / 2, yc - 8 / 27 * k1 + 2 * k2 - 3544 / 2565 * k3 + 1859 / 4104 * k4 - 11 / 40 * k5);
+    var res = 16 / 135 * k1 + 6656 / 12825 * k3 + 28561 / 56430 * k4 - 9 / 50 * k5 + 2 / 55 * k6;
+    return res;
 };
 
 var norm = function(v) {
@@ -80,10 +93,10 @@ var get_values = function(P1_0, P2_0, alpha, tau, point, cache) {
     };
     var states = [];
     for (var t = 0; t < point; t += tau) {
-        state.X1 += runge_kutta_diff(state, t, derivatives.X1, alpha, tau);
-        state.X2 += runge_kutta_diff(state, t, derivatives.X2, alpha, tau);
-        state.P1 += runge_kutta_diff(state, t, derivatives.P1, alpha, tau);
-        state.P2 += runge_kutta_diff(state, t, derivatives.P2, alpha, tau);
+        state.X1 += runge_kutta_diff('X1', state, t, alpha, tau);
+        state.X2 += runge_kutta_diff('X2', state, t, alpha, tau);
+        state.P1 += runge_kutta_diff('P1', state, t, alpha, tau);
+        state.P2 += runge_kutta_diff('P2', state, t, alpha, tau);
         if (cache) {
             states.push({
               X1: state.X1,
