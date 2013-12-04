@@ -50,7 +50,7 @@ var alphas = [0, 0.01, 0.5, 1.5, 10.5];
 
 var integrate = function(func, a, b, tau) {
     var result = 0;
-    for (var t = a; t < b; t += tau) {
+    for (var t = a; t + tau < b; t += tau) {
         result += (func(t) + func(t + tau)) * tau / 2;
     }
     return result;
